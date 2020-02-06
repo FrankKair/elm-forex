@@ -32,7 +32,7 @@ init _ =
 type Model
   = Failure
   | Loading
-  | Success (List String)
+  | Success (List String) Int
 
 
 -- HTTP
@@ -64,12 +64,10 @@ update msg model =
     GotCurrencies result ->
       case result of
         Ok currencies ->
-          (Success currencies, Cmd.none)
+          (Success currencies 1, Cmd.none)
 
         Err _ ->
           (Failure, Cmd.none)
-
--- clickMe msg = 
 
 
 -- SUBSCRIPTIONS
@@ -97,11 +95,11 @@ view model =
     Loading ->
       text "Loading..."
 
-    Success currencies ->
+    Success currencies res ->
       let options = getOptions currencies in
       div []
         [
           select [] options
         , select [] options
-        , text "fx"
+        , text (String.fromInt res)
         ]
