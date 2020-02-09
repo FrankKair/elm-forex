@@ -1,7 +1,8 @@
 module Main exposing (main)
+
 import Browser
 import Html exposing (Html, button, div, text, select, option)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode exposing (Decoder, field, list, string)
 
@@ -21,7 +22,11 @@ main =
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  ( Loading
+  ( { currencies = []
+    , from = "USD"
+    , to = "USD"
+    , result = "1"
+    }
   , getCurrencies
   )
 
@@ -29,10 +34,12 @@ init _ =
 -- MODEL
 
 
-type Model
-  = Failure
-  | Loading
-  | Success (List String) Int
+type alias Model =
+  { currencies : List String
+  , from : String
+  , to : String
+  , result : String
+  }
 
 
 -- HTTP
@@ -51,11 +58,28 @@ currenciesDecoder =
   field "currencies" (list string)
 
 
+convertFromTo : String -> String -> Cmd Msg
+convertFromTo from to =
+  Http.get
+    { url = "http://localhost:4567/" ++ from ++ "/to/" ++ to
+    , expect = Http.expectJson GotConversion convertDecoder
+    }
+
+
+convertDecoder : Decoder String
+convertDecoder =
+  field "result" string
+
+
 -- UPDATE
 
 
 type Msg
   = GotCurrencies (Result Http.Error (List String))
+  | ChangeFrom String
+  | ChangeTo String
+  | Convert
+  | GotConversion (Result Http.Error String)
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -64,10 +88,27 @@ update msg model =
     GotCurrencies result ->
       case result of
         Ok currencies ->
-          (Success currencies 1, Cmd.none)
+          ({ model | currencies = currencies }, Cmd.none)
 
         Err _ ->
-          (Failure, Cmd.none)
+          (model, Cmd.none)
+
+    ChangeFrom from ->
+      ({ model | from = from }, Cmd.none)
+
+    ChangeTo to ->
+      ({ model | to = to }, Cmd.none)
+
+    Convert ->
+      (model, convertFromTo model.from model.to)
+
+    GotConversion result ->
+      case result of
+        Ok value ->
+          ({ model | result = value }, Cmd.none)
+
+        Err _ ->
+          (model, Cmd.none)
 
 
 -- SUBSCRIPTIONS
@@ -88,18 +129,10 @@ getOptions currencies =
 
 view : Model -> Html Msg
 view model =
-  case model of
-    Failure ->
-      text "Error"
-
-    Loading ->
-      text "Loading..."
-
-    Success currencies res ->
-      let options = getOptions currencies in
-      div []
-        [
-          select [] options
-        , select [] options
-        , text (String.fromInt res)
-        ]
+  let options = getOptions model.currencies in
+  div [] [
+      select [ onInput ChangeFrom ] options
+    , select [ onInput ChangeTo ] options
+    , button [ onClick Convert ] [ text "Convert" ]
+    , text model.result
+  ]
