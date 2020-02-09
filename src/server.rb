@@ -15,7 +15,8 @@ get '/*/to/*' do
   currencies = params['splat']
   to = currencies[0]
   from = currencies[1]
-  Fafx::ExchangeRate.at(Date.today, to, from).to_s
+  result = Fafx::ExchangeRate.at(Date.today, to, from).to_s
+  JSON.generate(:result => result)
 end
 
 get '/currencies' do
