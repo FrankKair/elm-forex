@@ -15,7 +15,7 @@ main =
   Browser.element
     { init = init
     , update = update
-    , subscriptions = subscriptions
+    , subscriptions = \_ -> Sub.none
     , view = view
     }
 
@@ -109,14 +109,6 @@ update msg model =
 
         Err _ ->
           (model, Cmd.none)
-
-
--- SUBSCRIPTIONS
-
-
-subscriptions : Model -> Sub Msg
-subscriptions _ =
-  Sub.none
 
 
 -- VIEW
