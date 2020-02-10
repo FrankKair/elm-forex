@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Html exposing (Html, button, div, text, select, option)
+import Html.Attributes exposing (style)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode exposing (Decoder, field, list, string)
@@ -25,7 +26,7 @@ init _ =
   ( { currencies = []
     , from = "USD"
     , to = "USD"
-    , result = "1"
+    , result = "1.0"
     }
   , getCurrencies
   )
@@ -122,9 +123,10 @@ getOptions currencies =
 view : Model -> Html Msg
 view model =
   let options = getOptions model.currencies in
-  div [] [
-      select [ onInput ChangeFrom ] options
-    , select [ onInput ChangeTo ] options
-    , button [ onClick Convert ] [ text "Convert" ]
+  let spacer = style "margin-right" "20px" in
+  div []
+    [ select [ onInput ChangeFrom, spacer ] options
+    , select [ onInput ChangeTo, spacer ] options
+    , button [ onClick Convert, spacer ] [ text "Convert" ]
     , text model.result
   ]
