@@ -4,16 +4,11 @@ Toy project to learn [Elm](https://elm-lang.org/) and the [Elm architecture](htt
 
 ---
 
-Frontend for converting currencies from the [fafx](https://github.com/FrankKair/fafx) package (European Central Bank), with a simple [Sinatra](http://sinatrarb.com/) server.
+Frontend for converting currencies using [forex-api](https://github.com/FrankKair/fafx/tree/master/api) (European Central Bank rates).
 
 ### Running the project
 
-On the root directory, run:
-
-```
-ruby src/server.rb
-elm reactor
-```
+Provided that [forex-api](https://github.com/FrankKair/fafx/tree/master/api) is running on port 4567, on the root directory, run `elm reactor`.
 
 ### Screenshot
 
